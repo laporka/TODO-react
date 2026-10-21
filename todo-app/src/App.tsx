@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 
@@ -68,12 +68,41 @@ function AddTodoForm({onAdd} : AddTodoFormProps) {
 
 
 
-function App() {
-  const [todos, setTodos] = useState<Todo[]>([])
+function useLocalStorage<T>(key : string, initialValue : T) {
+  const [value, setValue] = useState<T>(() => {
+    const saved = localStorage.getItem(key);
+    if(saved){
+      return JSON.parse(saved);
+    }
+    
+    return initialValue;
+  });
 
- return (
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [key, value]);
+
+  return [value, setValue] as const;
+}
+
+
+
+function App() {
+  const [todos, setTodos] = useLocalStorage<Todo[]>("todos", [])
+  const [filter, setFilter] = useState("all")
+  const activeCount = todos.filter((todo) => !todo.done).length
+  
+  let filteredTodos = todos
+  if(filter === "active"){
+    filteredTodos = todos.filter((todo) => !todo.done)
+  }else if(filter === "done"){
+    filteredTodos = todos.filter((todo) => todo.done)
+  }
+
+  return (
     <>
-      <TodoList tasks={todos} onDelete={(id) => {
+      <TodoList tasks={filteredTodos} 
+      onDelete={(id) => {
         const newTodos = todos.filter((todo) => todo.id !== id)
         setTodos(newTodos)
       }}
@@ -96,6 +125,12 @@ function App() {
         };
         setTodos([...todos, newTask]);
       }} />
+
+      <div>Залишилось: {activeCount}</div>
+
+      <button onClick={() => setFilter("all")}>all</button>
+      <button onClick={() => setFilter("active")}>active</button>
+      <button onClick={() => setFilter("done")}>done</button>
     </>
   )
 }
