@@ -1,120 +1,101 @@
 import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
+
+
+type Todo = { id: number; text: string; done: boolean }
+type TodoListProps = { 
+  tasks : Todo[],
+  onToggle : (id : number) => void,
+  onDelete : (id : number) => void 
+}
+type TodoItemProps = {
+  task : Todo,
+  onToggle : (id : number) => void,
+  onDelete : (id : number) => void 
+}
+type AddTodoFormProps = { 
+  onAdd : (text : string) => void 
+}
+
+
+
+function TodoItem({ task, onToggle, onDelete } : TodoItemProps) {
+  return (
+    <div>
+      {task.text}
+      <input type="checkbox" checked={task.done} onChange={() =>
+        onToggle(task.id)
+      }/>
+      <button onClick={() =>
+        onDelete(task.id)
+      }>
+        Видалити
+      </button>
+    </div>
+  )
+}
+
+function TodoList({ tasks, onToggle, onDelete } : TodoListProps) {
+  return (
+    <div>
+      {tasks.map((task) => 
+        (<TodoItem key={task.id} onDelete={onDelete} onToggle={onToggle} task={task} />
+      ))}
+    </div>
+  )
+}
+
+function AddTodoForm({onAdd} : AddTodoFormProps) {
+  const [text, setText] = useState("")
 
   return (
+    <div>
+      <input type="text" value={text}
+        onChange={(e) => setText(e.target.value)}
+      />
+      <button onClick={() => {
+        if(text.trim() != ""){
+          onAdd(text)
+          setText("")
+        }
+      }}>
+        Додати
+      </button>
+    </div>
+  )
+}
+
+
+
+function App() {
+  const [todos, setTodos] = useState<Todo[]>([])
+
+ return (
     <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.tsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+      <TodoList tasks={todos} onDelete={(id) => {
+        const newTodos = todos.filter((todo) => todo.id !== id)
+        setTodos(newTodos)
+      }}
+      onToggle={(id) => {
+        const newTodos = todos.map((todo) => {
+          if(todo.id === id){
+            return {...todo, done : !todo.done};
+          }
 
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <div className="ticks"></div>
-      <section id="spacer"></section>
+          return todo;
+        });
+        setTodos(newTodos);
+      }}/>
+        
+      <AddTodoForm onAdd={(text) => {
+        const newTask = {
+          id: Date.now(),
+          text: text,
+          done: false
+        };
+        setTodos([...todos, newTask]);
+      }} />
     </>
   )
 }
