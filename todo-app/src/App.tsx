@@ -4,6 +4,7 @@ import { HomePage } from "./pages/HomePage";
 import { About } from "./pages/AboutPage";
 import { TodoDetails } from "./pages/TodoDetailsPage";
 import { NotFound } from "./pages/NotFoundPage";
+import { CountriesPage } from "./pages/CountriesPage";
 
 
 
@@ -16,6 +17,7 @@ function App() {
           <Route path="about" element={<About />} />
           <Route path="todos/:id" element={<TodoDetails />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/countries" element={<CountriesPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

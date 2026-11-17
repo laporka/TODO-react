@@ -1,21 +1,23 @@
 import { type Todo } from "../types/todo";
+import { useTodoStore } from "../store/todoStore";
 
 type TodoItemProps = {
-  task : Todo,
-  onToggle : (id : number) => void,
-  onDelete : (id : number) => void 
+  task : Todo
 }
 
-export function TodoItem({ task, onToggle, onDelete } : TodoItemProps) {
+export function TodoItem({ task } : TodoItemProps) {
+  const toggleTodo = useTodoStore((state) => state.toggleTodo)
+  const removeTodo = useTodoStore((state) => state.removeTodo)
+
   return (
-    <div>
+    <div className="space-y-2 mb-2 p-3 bg-gray-50 dark:bg-gray-800 rounded shadow-sm">
       {task.text}
       <input type="checkbox" checked={task.done} onChange={() =>
-        onToggle(task.id)
-      }/>
+        toggleTodo(task.id)
+      } className="ml-2 mr-4 mb-0" />
       <button onClick={() =>
-        onDelete(task.id)
-      }>
+        removeTodo(task.id)
+      } className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded">
         Видалити
       </button>
     </div>
